@@ -1,26 +1,43 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { initDB, closeDB } from './database/db';
+import { SnippetTreeProvider } from './providers/snippetTreeProvider';
+import { registerAddSnippet }    from './commands/addSnippet';
+import { registerEditSnippet }   from './commands/editSnippet';
+import { registerDeleteSnippet } from './commands/deleteSnippet';
+import { registerSearchSnippets } from './commands/searchSnippets';
+import { registerInsertSnippet } from './commands/insertSnippet';
+import { registerCopySnippet }   from './commands/copySnippet';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
+    // Initialize SQLite database in global storage (persists across workspaces)
+    initDB(context.globalStorageUri.fsPath);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "snipfast" is now active!');
+    // Register TreeView
+    const treeProvider = new SnippetTreeProvider();
+    const treeView = vscode.window.createTreeView('snipfast.snippetList', {
+        treeDataProvider: treeProvider,
+        showCollapseAll: true,
+    });
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('snipfast.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from SnipFast!');
-	});
+    // Register a preview command (reveal snippet in a read-only editor)
+    const previewCmd = vscode.commands.registerCommand(
+        'snipfast.previewSnippet',
+        async () => { /* single-click: no-op; double-click handled by insert */ },
+    );
 
-	context.subscriptions.push(disposable);
+    // Register all feature commands
+    context.subscriptions.push(
+        treeView,
+        previewCmd,
+        registerAddSnippet(context, treeProvider),
+        registerEditSnippet(context, treeProvider),
+        registerDeleteSnippet(treeProvider),
+        registerSearchSnippets(),
+        registerInsertSnippet(),
+        registerCopySnippet(),
+    );
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate(): void {
+    closeDB();
+}

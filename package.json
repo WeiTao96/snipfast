@@ -9,13 +9,114 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": ["onStartupFinished"],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "snipfast-sidebar",
+          "title": "SnipFast",
+          "icon": "resources/snipfast.svg"
+        }
+      ]
+    },
+    "views": {
+      "snipfast-sidebar": [
+        {
+          "id": "snipfast.snippetList",
+          "name": "代码片段",
+          "icon": "resources/snipfast.svg",
+          "contextualTitle": "SnipFast"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "snipfast.helloWorld",
-        "title": "Hello World"
+        "command": "snipfast.addSnippet",
+        "title": "新增 Snippet",
+        "category": "SnipFast",
+        "icon": "$(add)"
+      },
+      {
+        "command": "snipfast.editSnippet",
+        "title": "编辑 Snippet",
+        "category": "SnipFast",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "snipfast.deleteSnippet",
+        "title": "删除 Snippet",
+        "category": "SnipFast",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "snipfast.searchSnippets",
+        "title": "搜索 Snippet",
+        "category": "SnipFast",
+        "icon": "$(search)"
+      },
+      {
+        "command": "snipfast.insertSnippet",
+        "title": "插入 Snippet",
+        "category": "SnipFast",
+        "icon": "$(insert)"
+      },
+      {
+        "command": "snipfast.copySnippet",
+        "title": "复制 Snippet",
+        "category": "SnipFast",
+        "icon": "$(copy)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "snipfast.addSnippet",
+          "when": "view == snipfast.snippetList",
+          "group": "navigation"
+        },
+        {
+          "command": "snipfast.searchSnippets",
+          "when": "view == snipfast.snippetList",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "snipfast.insertSnippet",
+          "when": "view == snipfast.snippetList && viewItem == snippet",
+          "group": "1_use@1"
+        },
+        {
+          "command": "snipfast.copySnippet",
+          "when": "view == snipfast.snippetList && viewItem == snippet",
+          "group": "1_use@2"
+        },
+        {
+          "command": "snipfast.editSnippet",
+          "when": "view == snipfast.snippetList && viewItem == snippet",
+          "group": "2_manage@1"
+        },
+        {
+          "command": "snipfast.deleteSnippet",
+          "when": "view == snipfast.snippetList && viewItem == snippet",
+          "group": "2_manage@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "snipfast.searchSnippets",
+          "group": "snipfast@1"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "snipfast.searchSnippets",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s",
+        "when": "editorFocus"
       }
     ]
   },
@@ -34,15 +135,19 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.116.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.56.1",
-    "eslint": "^9.39.3",
+    "@types/vscode": "^1.116.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.27.3",
+    "eslint": "^9.39.3",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "typescript-eslint": "^8.56.1"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0"
   }
 }
